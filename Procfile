@@ -1,0 +1,1 @@
+web: gunicorn -c gunicorn_conf.py cloudlike.wsgi --log-file -

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import dj_database_url
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -76,10 +78,9 @@ WSGI_APPLICATION = 'cloudlike.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(
+        default="sqlite:/{}".format(os.path.join(BASE_DIR, 'db.sqlite3'))
+    )
 }
 
 
@@ -123,7 +124,7 @@ STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'
 
-MEDIA_ROOT = os.path.join(os.path.abspath('.'), 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_UR = 'media'
 
 MAX_FILES_COUNT = 100
