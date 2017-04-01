@@ -7,31 +7,9 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, APIClient
 
+from main.tests import BaseTestCase
 from repository.models import UserFile, File
 
-
-class LoggedSession(object):
-    def __init__(self, client, username, password):
-        self.client = client
-        self.username = username
-        self.password = password
-
-    def __enter__(self):
-        return self.client.login(username=self.username, password=self.password)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.client.logout()
-
-
-class BaseTestCase(TestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.client = APIClient()
-        self.user1 = User.objects.create_user(username="user1", password='123')
-        self.user2 = User.objects.create_user(username="user2", password='123')
-
-    def login(self, username='user1', password='123'):
-        return LoggedSession(self.client, username, password)
 
 
 class TestFileViewSet(BaseTestCase):
