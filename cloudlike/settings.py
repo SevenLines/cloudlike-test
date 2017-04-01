@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!cpfbz17ov$m$ep63x@+gi^x!n21we@9^o@u^aoks5pds%gpat'
+SECRET_KEY = os.environ.get('SECRET_KEY', '!cpfbz17ov$m$ep63x@+gi^x!n21we@9^o@u^aoks5pds%gpat')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(';')
 
 
 # Application definition
@@ -128,3 +128,53 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_UR = 'media'
 
 MAX_FILES_COUNT = 100
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
+    'handlers': {
+        'django_file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'level': 'ERROR',
+            'filename': 'logs/django.log',
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'level': 'ERROR',
+            'filename': 'logs/irgid.log',
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['django_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins', 'django_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'excursions': {
+            'handlers': ['file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
