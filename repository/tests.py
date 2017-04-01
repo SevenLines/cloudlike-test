@@ -1,15 +1,9 @@
-import os
-
-from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from rest_framework.test import APIRequestFactory, APIClient
 
 from main.tests import BaseTestCase
 from repository.models import UserFile, File
-
 
 
 class TestFileViewSet(BaseTestCase):
@@ -94,6 +88,8 @@ class TestFileViewSet(BaseTestCase):
                     'name': 'name1',
                     'file': f
                 })
+
+            with open("manage.py", 'rb') as f:
                 r = self.client.post(reverse("repository:files-list"), {
                     'name': 'name1',
                     'file': f

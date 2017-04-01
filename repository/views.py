@@ -18,7 +18,7 @@ from rest_framework.viewsets import GenericViewSet
 from repository.models import UserFile
 from repository.models import File
 from repository.models import FileHashedUrl
-from repository.serializers import UserFileSerializer
+from repository.serializers import UserFileCreateSerializer, UserFileListSerializer
 
 
 class UserFilesViewSet(ListModelMixin,
@@ -27,43 +27,32 @@ class UserFilesViewSet(ListModelMixin,
                        RetrieveModelMixin,
                        GenericViewSet):
     queryset = UserFile.objects.all().order_by('-id')
-    serializer_class = UserFileSerializer
+    serializer_class = UserFileListSerializer
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def filter_queryset(self, queryset):
+        # filter returned list by logged user
         queryset = super().filter_queryset(queryset)
         return queryset.filter(user=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        form_file = request.data['file']
-        file_name = form_file.name if not request.data.get('name') \
-            else "{}.{}".format(request.data['name'], form_file.name.split('.')[-1])
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({
+            'user': self.request.user
+        })
+        return context
 
-        file, is_duplicate = File.objects.create_and_check_for_duplicate(file=form_file)
-
-        user_file = UserFile.objects.create(
-            user=request.user,
-            name=file_name,
-            original=not is_duplicate,
-            file=file
-        )
-
-        serializer = self.get_serializer(user_file)
-        headers = self.get_success_headers(serializer.data)
-
-        data = serializer.data
-        if is_duplicate:
-            user_of_original = User.objects.filter(
-                pk__in=UserFile.objects.filter(original=True, file_id=file.pk).values('user')
-            ).first()
-            if user_of_original:
-                data.update({
-                    'user_of_original': user_of_original.username
-                })
-        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserFileCreateSerializer
+        return super().get_serializer_class()
 
     def retrieve(self, request, pk, *args, **kwargs):
+        """
+        Generate hashed file url, and redirect to it
+        :pk UserFile id
+        """
         user_file = get_object_or_404(UserFile, pk=pk)
         hashed_file = FileHashedUrl.objects.create(file_id=user_file.file_id)
         return redirect(reverse('repository:link', args=[hashed_file.hash, user_file.name]))
@@ -71,9 +60,12 @@ class UserFilesViewSet(ListModelMixin,
 
 class HashedUrlView(APIView):
     def get(self, request, hsh, name):
+        # get hashed file using provided hash
         hashed_file = get_object_or_404(FileHashedUrl, hash=hsh)
         file_instance = hashed_file.file
         file = file_instance.file
+
+        # create response, add attachement headers
         response = HttpResponse(file.read(), mimetypes.guess_type(file.name))
         response['Content-Disposition'] = 'attachment; filename="{name}"'.format(
             name=name,
