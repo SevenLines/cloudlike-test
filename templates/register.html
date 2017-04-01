@@ -6,17 +6,17 @@
             <legend>Регистрация</legend>
             {% csrf_token %}
             <div class="form-group">
-                <label for="">{{ form.username.label_tag }}</label>
+                <label for="">Пользователь</label>
                 <input type="text" class="form-control" name="username">
             </div>
 
             <div class="form-group">
-                <label for="">{{ form.password1.label_tag }}</label>
+                <label for="">Пароль</label>
                 <input type="text" class="form-control" name="password1">
             </div>
 
             <div class="form-group">
-                <label for="">{{ form.password2.label_tag }}</label>
+                <label for="">Подтвреждение пароля</label>
                 <input type="text" class="form-control" name="password2">
             </div>
 

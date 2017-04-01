@@ -7,6 +7,6 @@ router = DefaultRouter()
 router.register('files', UserFilesViewSet, 'files')
 
 urlpatterns = [
-    url(r'^link/(?P<hsh>\w+).(?P<name>\w+)$', HashedUrlView.as_view(), name="link"),
+    url(r'^link/(?P<hsh>\w+).(?P<name>.*?)$', HashedUrlView.as_view(), name="link"),
     url(r'^', include(router.urls)),
 ]

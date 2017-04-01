@@ -3,6 +3,7 @@ import os
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, APIClient
 
@@ -70,8 +71,8 @@ class TestFileViewSet(BaseTestCase):
                 id2 = r.data['id']
 
             self.assertEqual(UserFile.objects.get(id=id1).file, UserFile.objects.get(id=id2).file)
-            self.assertEqual('name1', UserFile.objects.get(id=id1).name)
-            self.assertEqual('name2', UserFile.objects.get(id=id2).name)
+            self.assertEqual('name1.py', UserFile.objects.get(id=id1).name)
+            self.assertEqual('name2.py', UserFile.objects.get(id=id2).name)
             self.assertEqual(1, File.objects.count())
             self.assertEqual(2, UserFile.objects.count())
 
@@ -107,3 +108,18 @@ class TestFileViewSet(BaseTestCase):
             r = self.client.get(r.url)
             self.assertIsNotNone(r.content)
 
+    @override_settings(MAX_FILES_COUNT=1)
+    def test_file_limit(self):
+        with self.login('user1'):
+            with open("manage.py", 'rb') as f:
+                r = self.client.post(reverse("repository:files-list"), {
+                    'name': 'name1',
+                    'file': f
+                })
+                r = self.client.post(reverse("repository:files-list"), {
+                    'name': 'name1',
+                    'file': f
+                })
+                self.assertEqual(500, r.status_code)
+
+            self.assertEqual(1, UserFile.objects.count())

@@ -125,3 +125,5 @@ LOGIN_REDIRECT_URL = '/'
 
 MEDIA_ROOT = os.path.join(os.path.abspath('.'), 'media')
 MEDIA_UR = 'media'
+
+MAX_FILES_COUNT = 100

@@ -70,17 +70,23 @@
         methods: {
           loadFiles: function () {
             var self = this;
-            this.$http.get("{% url "repository:files-list" %}").then(function (data) {
-              self.files = data.body
+            this.$http.get("{% url "repository:files-list" %}").then(function (response) {
+              self.files = response.body
             })
           },
           addFile: function () {
             var formdata = new FormData(document.forms["add-file-form"])
             var self = this;
             this.uploading = true
-            this.$http.post("{% url "repository:files-list" %}", formdata).then(function () {
+            this.$http.post("{% url "repository:files-list" %}", formdata).then(function (response) {
               self.loadFiles()
               self.uploading = false
+              if (response.body.user_of_original) {
+                alert("Загружаемый файл является дублем файла которым владеет "
+                  + response.body.user_of_original);
+              }
+            }, function (response) {
+              alert(response.body.detail)
             })
           },
           download: function (id) {
