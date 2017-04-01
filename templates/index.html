@@ -11,8 +11,10 @@
                 <input type="text" name="name" class="form-control"
                        placeholder="наименование файла">
             </div>
-            <button class="btn btn-primary" @click.prevent="addFile">
-                <i class="glyphicon glyphicon-plus"></i> Добавить файл
+            <button :class="{disabled: uploading}"  class="btn btn-primary" @click.prevent="addFile">
+                <i v-if="!uploading" class="glyphicon glyphicon-plus"></i>
+                <span v-if="!uploading">Добавить файл</span>
+                <span v-if="uploading">Загружаю файл...</span>
             </button>
         </form>
         <hr>
@@ -40,7 +42,7 @@
                 <br>{{ name }}
             </div>
             <hr>
-            <button class="btn btn-default" :class="{disabled: uploading}" @click.prevent="$emit('download')">
+            <button class="btn btn-default" @click.prevent="$emit('download')">
                 <i class="glyphicon glyphicon-download"></i>
             </button>
         </div>
@@ -86,6 +88,7 @@
                   + response.body.user_of_original);
               }
             }, function (response) {
+              self.uploading = false
               alert(response.body.detail)
             })
           },

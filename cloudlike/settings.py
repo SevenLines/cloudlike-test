@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'cloudlike.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default="sqlite:/{}".format(os.path.join(BASE_DIR, 'db.sqlite3'))
+        default="sqlite:////{}".format(os.path.join(BASE_DIR, 'db.sqlite3'))
     )
 }
 
