@@ -1,10 +1,12 @@
 # Create your views here.
+import mimetypes
+import os
+
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls.base import reverse
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import detail_route
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import ListModelMixin
@@ -50,11 +52,17 @@ class UserFilesViewSet(ListModelMixin,
     def retrieve(self, request, pk, *args, **kwargs):
         user_file = get_object_or_404(UserFile, pk=pk)
         hashed_file = FileHashedUrl.objects.create(file_id=user_file.file_id)
-        return redirect(reverse('repository:link', args=[hashed_file.hash]))
+        return redirect(reverse('repository:link', args=[hashed_file.hash, user_file.name]))
 
 
 class HashedUrlView(APIView):
-    def get(self, request, hsh):
+    def get(self, request, hsh, name):
         hashed_file = get_object_or_404(FileHashedUrl, hash=hsh)
-        response = HttpResponse(hashed_file.file.file.read())
+        file_instance = hashed_file.file
+        file = file_instance.file
+        response = HttpResponse(file.read(), mimetypes.guess_type(file.name))
+        response['Content-Disposition'] = 'attachment; filename="{name}.{ext}"'.format(
+            name=name,
+            ext=file.name.split('.')[-1]
+        )
         return response

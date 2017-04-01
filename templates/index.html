@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div id="file-manager">
+        <form style="padding: 1em" id="add-file-form" name="add-file-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="file" name="file">
+            </div>
+            <div class="form-group">
+                <input type="text" name="name" class="form-control"
+                       placeholder="наименование файла">
+            </div>
+            <button class="btn btn-primary" @click.prevent="addFile">
+                <i class="glyphicon glyphicon-plus"></i> Добавить файл
+            </button>
+        </form>
+        <hr>
+        <file-component v-for="f in files"
+                        :name="f.name"
+                        :id="f.id"
+                        :uploading="uploading"
+                        @download="download(f.id)"
+                        @remove="remove(f.id)"
+        />
+    </div>
+
+    {% verbatim %}
+    <script type="text/x-template" id="file-template">
+        <div class="pull-left"
+             style="position: relative; margin: 1em; padding: 1em; min-width: 100px; text-align: center; box-shadow: 0 0 4px silver">
+            <button class="btn btn-danger btn-sm"
+                    style="position: absolute; right: -10px; top: -10px"
+                    @click.prevent="$emit('remove')"
+            >
+                <i class="glyphicon glyphicon-remove"></i>
+            </button>
+            <div class="download">
+                <i class="glyphicon glyphicon-file" style="font-size: 3em; cursor: pointer"></i>
+                <br>{{ name }}
+            </div>
+            <hr>
+            <button class="btn btn-default" :class="{disabled: uploading}" @click.prevent="$emit('download')">
+                <i class="glyphicon glyphicon-download"></i>
+            </button>
+        </div>
+    </script>
+    {% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+     <script>
+      Vue.http.headers.common['X-CSRFToken'] = '{{ csrf_token }}';
+
+      Vue.component("file-component", {
+        props: ['name', 'id', 'file', 'uploading'],
+        template: "#file-template"
+      })
+
+      new Vue({
+        el: '#file-manager',
+        data: {
+          files: [],
+          uploading: false
+        },
+        mounted: function () {
+          this.loadFiles()
+        },
+        methods: {
+          loadFiles: function () {
+            var self = this;
+            this.$http.get("{% url "repository:files-list" %}").then(function (data) {
+              self.files = data.body
+            })
+          },
+          addFile: function () {
+            var formdata = new FormData(document.forms["add-file-form"])
+            var self = this;
+            this.uploading = true
+            this.$http.post("{% url "repository:files-list" %}", formdata).then(function () {
+              self.loadFiles()
+              self.uploading = false
+            })
+          },
+          download: function (id) {
+            window.open('/repository/files/' + id);
+          },
+          remove: function (id) {
+            if (confirm("Удалить файл?")) {
+              var self = this;
+              this.$http.delete('/repository/files/' + id + '/').then(function () {
+                self.loadFiles()
+              })
+            }
+          }
+        }
+      })
+    </script>
+{% endblock %}

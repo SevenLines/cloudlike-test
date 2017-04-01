@@ -105,6 +105,5 @@ class TestFileViewSet(BaseTestCase):
 
             r = self.client.get(reverse('repository:files-detail', args=[user_file.pk]))
             r = self.client.get(r.url)
-            print(r)
-
+            self.assertIsNotNone(r.content)
 

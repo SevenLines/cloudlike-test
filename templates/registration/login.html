@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="login-form">
+        <form method="post" action="{% url 'login' %}">
+            <legend>Войти</legend>
+            <div class="form-group">
+                <label for="">{{ form.password.label_tag }}</label>
+                <input type="text" class="form-control" name="username">
+            </div>
+
+            <div class="form-group">
+                <label for="">{{ form.username.label_tag }}</label>
+                <input type="text" class="form-control" name="password">
+            </div>
+
+            {% csrf_token %}
+
+            <input type="hidden" name="next" value="{{ next }}"/>
+
+            <button type="submit" class="btn btn-primary" value="login">Войти</button>
+
+            <a class="pull-right" href="{% url 'register' %}">регистрация</a>
+        </form>
+
+        {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}
