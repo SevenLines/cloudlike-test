@@ -13,6 +13,7 @@ class UserFileListSerializer(serializers.ModelSerializer):
 
 class UserFileCreateSerializer(serializers.ModelSerializer):
     file = serializers.FileField()
+    name = serializers.CharField(required=False)
 
     class Meta:
         model = UserFile
@@ -21,7 +22,7 @@ class UserFileCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context.get('user')
         file_ext = validated_data['file'].name.split('.')[-1]
-        file_name = validated_data['file'].name if not validated_data['name'] \
+        file_name = validated_data['file'].name if not validated_data.get('name') \
             else "{}.{}".format(validated_data['name'], file_ext)
 
         # check that we not exceed file count limit

@@ -37,14 +37,13 @@ class TestFileViewSet(BaseTestCase):
 
             with open("manage.py", 'rb') as f:
                 r = self.client.post(reverse("repository:files-list"), {
-                    'name': 'name2',
                     'file': f
                 })
                 id2 = r.data['id']
 
             self.assertEqual(UserFile.objects.get(id=id1).file, UserFile.objects.get(id=id2).file)
             self.assertEqual('name1.py', UserFile.objects.get(id=id1).name)
-            self.assertEqual('name2.py', UserFile.objects.get(id=id2).name)
+            self.assertEqual('manage.py', UserFile.objects.get(id=id2).name)
             self.assertEqual(1, File.objects.count())
             self.assertEqual(2, UserFile.objects.count())
 
