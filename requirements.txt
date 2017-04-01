@@ -2,3 +2,4 @@ Django==1.10
 djangorestframework==3.6.2
 dj-database-url
 psycopg2
+gunicorn
