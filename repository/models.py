@@ -31,7 +31,7 @@ class FileHashedUrl(models.Model):
 
 class File(models.Model):
     file = models.FileField("file instance", upload_to='repository')
-    hash = models.TextField("file name", editable=False)
+    hash = models.TextField("file name", editable=False, unique=True)
 
     objects = FileManager()
 
