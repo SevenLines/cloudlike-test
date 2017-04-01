@@ -1,24 +1,21 @@
 # Create your views here.
 import mimetypes
 
-from django.contrib.auth.models import User
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls.base import reverse
-from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from repository.models import UserFile
-from repository.models import File
 from repository.models import FileHashedUrl
-from repository.serializers import UserFileCreateSerializer, UserFileListSerializer
+from repository.models import UserFile
+from repository.serializers import UserFileCreateSerializer
+from repository.serializers import UserFileListSerializer
 
 
 class UserFilesViewSet(ListModelMixin,
@@ -32,8 +29,8 @@ class UserFilesViewSet(ListModelMixin,
     permission_classes = (IsAuthenticated,)
 
     def filter_queryset(self, queryset):
-        # filter returned list by logged user
         queryset = super().filter_queryset(queryset)
+        # filter returned list by logged user
         return queryset.filter(user=self.request.user)
 
     def get_serializer_context(self):

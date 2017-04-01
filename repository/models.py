@@ -1,11 +1,8 @@
+import hashlib
 import uuid
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-import hashlib
-
-from repository.exceptions import FileLimitExceedApiException
 
 
 class FileManager(models.Manager):
