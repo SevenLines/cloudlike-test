@@ -43,7 +43,7 @@ class UserFilesViewSet(ListModelMixin,
     def get_serializer_class(self):
         if self.action == 'create':
             return UserFileCreateSerializer
-        return super().get_serializer_class()
+        return super(UserFilesViewSet, self).get_serializer_class()
 
     def retrieve(self, request, pk, *args, **kwargs):
         """
